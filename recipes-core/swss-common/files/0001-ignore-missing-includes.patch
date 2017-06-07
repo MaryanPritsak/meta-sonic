@@ -1,0 +1,45 @@
+diff --git a/common/Makefile.am b/common/Makefile.am
+index 058106e..3935c71 100644
+--- a/common/Makefile.am
++++ b/common/Makefile.am
+@@ -1,4 +1,4 @@
+-INCLUDES = -I $(top_srcdir) -I/usr/include/libnl3
++INCLUDES = -I $(top_srcdir)
+ 
+ lib_LTLIBRARIES = libswsscommon.la
+ 
+@@ -35,12 +35,12 @@ libswsscommon_la_SOURCES = \
+     portmap.cpp               \
+     tokenize.cpp
+ 
+-libswsscommon_la_CFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON)
+-libswsscommon_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON)
+-libswsscommon_la_LIBADD = -lpthread
++libswsscommon_la_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CFLAGS)
++libswsscommon_la_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON) $(LIBNL_CPPFLAGS)
++libswsscommon_la_LIBADD = -lpthread $(LIBNL_LIBS)
+ 
+ swssloglevel_SOURCES = loglevel.cpp
+ 
+-swssloglevel_CFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON)
++swssloglevel_CXXFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON)
+ swssloglevel_CPPFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON)
+-swssloglevel_LDADD = -lswsscommon
++swssloglevel_LDADD = libswsscommon.la
+diff --git a/configure.ac b/configure.ac
+index f151922..4b1b433 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -11,9 +11,9 @@ AC_PROG_LIBTOOL
+ AC_HEADER_STDC
+ 
+ AC_CHECK_LIB([hiredis], [redisConnect])
+-AC_CHECK_LIB([nl-3], [nl_connect])
+-AC_CHECK_LIB([nl-genl-3], [genl_connect])
+-AC_CHECK_LIB([nl-route-3], [rtnl_route_alloc])
++PKG_CHECK_MODULES([LIBNL], [libnl-3.0 libnl-genl-3.0 libnl-route-3.0 libnl-cli-3.0])
++        CFLAGS="$CFLAGS $LIBNL_CFLAGS"
++        LIBS="$LIBS $LIBNL_LIBS"
+ 
+ LDFLAGS="-Wl,--no-undefined $LDFLAGS"
+ AC_SUBST([LDFLAGS])
